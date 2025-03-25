@@ -164,8 +164,8 @@ async def face_dua(
         )
     delete_file_in_local(folder=LOCAL_PATH, path=path)
     # os.remove(user_face_path)  # Clean up the temporary file
-    os.remove(path)  # Clean up the temporary file
-    os.remove(path2)  # Clean up the temporary file
+    # os.remove(path)  # Clean up the temporary file
+    # os.remove(path2)  # Clean up the temporary file
     return obj['verified']
 
 
