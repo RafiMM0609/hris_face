@@ -100,6 +100,74 @@ async def face(
     os.remove(user_face_path)  # Clean up the temporary file
     return obj['verified']
 
+async def face_dua(
+    upload_file:UploadFile,
+    upload_file_2:UploadFile,
+    user: User,
+    db: Session,
+):
+    file_extension = os.path.splitext(upload_file.filename)[1]
+    now = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+    path = await upload_file_to_local(
+            upload_file=upload_file, folder=LOCAL_PATH, path=f"/tmp/face-{user.name}{now.replace(' ','_')}{file_extension}"
+        )
+    path2 = await upload_file_to_local(
+            upload_file=upload_file_2, folder=LOCAL_PATH, path=f"/tmp/face-{user.name}{now.replace(' ','_')}{file_extension}"
+        )
+
+    loop = asyncio.get_running_loop()
+    resized_img1 = await loop.run_in_executor(None, resize_image, f"{LOCAL_PATH}{path}")
+    resized_img2 = await loop.run_in_executor(None, resize_image, f"{LOCAL_PATH}{path2}")
+    
+    # Fetch the user's face image from MinIO
+    
+    # user_face_bytes = download_file_to_bytes(user.face_id)
+    # user_face_path = f"{LOCAL_PATH}/tmp/{user.face_id.split('/')[-1]}"
+    # with open(user_face_path, "wb") as f:
+    #     f.write(user_face_bytes)
+    
+    # resized_img2 = await loop.run_in_executor(None, resize_image, user_face_path)
+                                            
+    # Face verification
+    # Try multiple models and detection backends for more robust verification
+    verification_results = []
+    
+    # Try different face recognition models
+    models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "ArcFace"]
+    for model in models[:2]:  # Using top 2 models for efficiency
+        try:
+            result = DeepFace.verify(
+                img1_path=resized_img1,
+                img2_path=resized_img2,
+                model_name=model,
+                detector_backend='retinaface',  # More accurate face detection
+                align=True,  # Enable facial alignment
+                enforce_detection=False,
+                normalization='base',  # Apply normalization
+                distance_metric='cosine'  # More reliable for face matching
+            )
+            verification_results.append(result['verified'])
+        except Exception as e:
+            print(f"Error with model {model}: {str(e)}")
+    
+    # Use majority voting for final decision
+    obj = {'verified': sum(verification_results) > len(verification_results) // 2}
+    
+    # If no results were obtained, fall back to original method
+    if not verification_results:
+        obj = DeepFace.verify(
+            img1_path=resized_img1, 
+            img2_path=resized_img2, 
+            detector_backend='retinaface',
+            align=True,
+            enforce_detection=False
+        )
+    delete_file_in_local(folder=LOCAL_PATH, path=path)
+    # os.remove(user_face_path)  # Clean up the temporary file
+    os.remove(path)  # Clean up the temporary file
+    os.remove(path2)  # Clean up the temporary file
+    return obj['verified']
+
 
 async def check_user_status_by_email(
     db: AsyncSession,
