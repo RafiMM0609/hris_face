@@ -63,13 +63,39 @@ async def face(
     resized_img2 = await loop.run_in_executor(None, resize_image, user_face_path)
                                             
     # Face verification
-    obj = DeepFace.verify(
-        img1_path=resized_img1, 
-        img2_path=resized_img2, 
-        detector_backend='opencv',  # Use 'opencv' backend for CPU
-        align=alignment_modes[0],
-        enforce_detection=False,   # Avoid errors if no face is detected
-    )
+    # Try multiple models and detection backends for more robust verification
+    verification_results = []
+    
+    # Try different face recognition models
+    models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "ArcFace"]
+    for model in models[:2]:  # Using top 2 models for efficiency
+        try:
+            result = DeepFace.verify(
+                img1_path=resized_img1,
+                img2_path=resized_img2,
+                model_name=model,
+                detector_backend='retinaface',  # More accurate face detection
+                align=True,  # Enable facial alignment
+                enforce_detection=False,
+                normalization='base',  # Apply normalization
+                distance_metric='cosine'  # More reliable for face matching
+            )
+            verification_results.append(result['verified'])
+        except Exception as e:
+            print(f"Error with model {model}: {str(e)}")
+    
+    # Use majority voting for final decision
+    obj = {'verified': sum(verification_results) > len(verification_results) // 2}
+    
+    # If no results were obtained, fall back to original method
+    if not verification_results:
+        obj = DeepFace.verify(
+            img1_path=resized_img1, 
+            img2_path=resized_img2, 
+            detector_backend='retinaface',
+            align=True,
+            enforce_detection=False
+        )
     delete_file_in_local(folder=LOCAL_PATH, path=path)
     os.remove(user_face_path)  # Clean up the temporary file
     return obj['verified']
