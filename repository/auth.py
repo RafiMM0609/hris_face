@@ -112,7 +112,7 @@ async def face_dua(
             upload_file=upload_file, folder=LOCAL_PATH, path=f"/tmp/face-{user.name}{now.replace(' ','_')}{file_extension}"
         )
     path2 = await upload_file_to_local(
-            upload_file=upload_file_2, folder=LOCAL_PATH, path=f"/tmp/face-{user.name}{now.replace(' ','_')}{file_extension}"
+            upload_file=upload_file_2, folder=LOCAL_PATH, path=f"/tmp/face2-{user.name}{now.replace(' ','_')}{file_extension}"
         )
 
     loop = asyncio.get_running_loop()
