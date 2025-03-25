@@ -56,7 +56,7 @@ async def face(
     # Fetch the user's face image from MinIO
     
     user_face_bytes = download_file_to_bytes(user.face_id)
-    user_face_path = f"{LOCAL_PATH}/tmp/{user.face_id.split('/')[-1]}"
+    user_face_path = f"{LOCAL_PATH}/tmp/{now.replace(' ','_')}-{user.face_id.split('/')[-1]}"
     with open(user_face_path, "wb") as f:
         f.write(user_face_bytes)
     
