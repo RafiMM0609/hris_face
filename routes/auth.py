@@ -71,7 +71,7 @@ async def face(
         )
         if not data:
             raise ValueError('Face not verified')
-        return CudResponse("Verified")
+        return common_response(CudResponse(message="Verified"))
     except Exception as e:
         import traceback
         print("ERROR :",e)
