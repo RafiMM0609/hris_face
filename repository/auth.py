@@ -168,6 +168,22 @@ async def face_dua(
     # os.remove(path2)  # Clean up the temporary file
     return obj['verified']
 
+def process_image(image_path):
+    img = None
+
+    while True:
+        with open(image_path, 'rb') as img_bin:
+            buff = StringIO()
+            buff.write(img_bin.read())
+            buff.seek(0)
+            temp_img = numpy.array(PIL.Image.open(buff), dtype=numpy.uint8)
+            img = cv2.cvtColor(temp_img, cv2.COLOR_RGB2BGR)
+
+        if img is not None:
+            break
+
+    return img
+
 
 async def check_user_status_by_email(
     db: AsyncSession,
