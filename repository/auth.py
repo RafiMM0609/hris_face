@@ -51,8 +51,8 @@ async def face(
         )
 
     loop = asyncio.get_running_loop()
-    resized_img1 = await loop.run_in_executor(None, resize_image, f"{LOCAL_PATH}{path}")
-    
+    #resized_img1 = await loop.run_in_executor(None, resize_image, f"{LOCAL_PATH}{path}")
+    resized_img1 = process_image(f"{LOCAL_PATH}{path}")
     # Fetch the user's face image from MinIO
     
     user_face_bytes = download_file_to_bytes(user.face_id)
