@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: backend-service
+    container_name: backend-service-face
     restart: always
     env_file:
       - .env

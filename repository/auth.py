@@ -13,10 +13,11 @@ from datetime import datetime, timedelta
 from pytz import timezone
 from settings import TZ, LOCAL_PATH
 from fastapi import UploadFile
+import numpy
 import os
 import asyncio
-os.environ["CUDA_VISIBLE_DEVICES"] = '-1'
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = '0'
+from io import BytesIO  # Change from StringIO to BytesIO
+import PIL.Image
 import cv2
 from deepface import DeepFace
 
@@ -53,6 +54,7 @@ async def face(
     loop = asyncio.get_running_loop()
     #resized_img1 = await loop.run_in_executor(None, resize_image, f"{LOCAL_PATH}{path}")
     resized_img1 = process_image(f"{LOCAL_PATH}{path}")
+
     # Fetch the user's face image from MinIO
     
     user_face_bytes = download_file_to_bytes(user.face_id)
@@ -60,7 +62,8 @@ async def face(
     with open(user_face_path, "wb") as f:
         f.write(user_face_bytes)
     
-    resized_img2 = await loop.run_in_executor(None, resize_image, user_face_path)
+    # resized_img2 = await loop.run_in_executor(None, resize_image, user_face_path)
+    resized_img2 = process_image(user_face_path)
                                             
     # Face verification
     # Try multiple models and detection backends for more robust verification
@@ -169,20 +172,28 @@ async def face_dua(
     return obj['verified']
 
 def process_image(image_path):
-    img = None
-
-    while True:
-        with open(image_path, 'rb') as img_bin:
-            buff = StringIO()
-            buff.write(img_bin.read())
-            buff.seek(0)
-            temp_img = numpy.array(PIL.Image.open(buff), dtype=numpy.uint8)
-            img = cv2.cvtColor(temp_img, cv2.COLOR_RGB2BGR)
-
-        if img is not None:
-            break
-
-    return img
+    try:
+        # Direct reading approach - more reliable
+        img = cv2.imread(image_path)
+        if img is None:
+            # Fall back to PIL if OpenCV fails
+            with open(image_path, 'rb') as img_bin:
+                buff = BytesIO(img_bin.read())
+                pil_img = PIL.Image.open(buff)
+                img = numpy.array(pil_img)
+                # Convert RGB to BGR for OpenCV compatibility
+                if img.shape[2] == 3:  # Check if it has 3 channels
+                    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        
+        if img is None:
+            raise ValueError(f"Failed to load image at {image_path}")
+            
+        return img
+        
+    except Exception as e:
+        print(f"Error processing image {image_path}: {str(e)}")
+        # Return a placeholder or raise an exception depending on requirements
+        raise
 
 
 async def check_user_status_by_email(
