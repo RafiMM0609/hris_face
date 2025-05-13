@@ -69,35 +69,38 @@ async def face(
     # Try multiple models and detection backends for more robust verification
     verification_results = []
     
-    # Try different face recognition models
-    models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "ArcFace"]
-    for model in models[:1]:  # Using top 2 models for efficiency
-        try:
-            result = DeepFace.verify(
-                img1_path=resized_img1,
-                img2_path=resized_img2,
-                model_name=model,
-                detector_backend='retinaface',  # More accurate face detection
-                align=True,  # Enable facial alignment
-                enforce_detection=False,
-                normalization='base',  # Apply normalization
-                distance_metric='cosine'  # More reliable for face matching
-            )
-            verification_results.append(result['verified'])
-        except Exception as e:
-            print(f"Error with model {model}: {str(e)}")
+    # # Try different face recognition models
+    # models = ["VGG-Face", "Facenet", "OpenFace", "DeepFace", "ArcFace"]
+    # for model in models[:2]:  # Using top 2 models for efficiency
+    #     try:
+    #         result = DeepFace.verify(
+    #             img1_path=resized_img1,
+    #             img2_path=resized_img2,
+    #             model_name=model,
+    #             detector_backend='retinaface',  # More accurate face detection
+    #             align=True,  # Enable facial alignment
+    #             enforce_detection=False,
+    #             normalization='base',  # Apply normalization
+    #             distance_metric='cosine'  # More reliable for face matching
+    #         )
+    #         verification_results.append(result['verified'])
+    #     except Exception as e:
+    #         print(f"Error with model {model}: {str(e)}")
     
-    # Use majority voting for final decision
-    obj = {'verified': sum(verification_results) > len(verification_results) // 2}
+    # # Use majority voting for final decision
+    # obj = {'verified': sum(verification_results) > len(verification_results) // 2}
     
     # If no results were obtained, fall back to original method
     if not verification_results:
         obj = DeepFace.verify(
-            img1_path=resized_img1, 
-            img2_path=resized_img2, 
-            detector_backend='retinaface',
+            img1_path=resized_img1,
+            img2_path=resized_img2,
+            model_name="VGG-Face",  # Using single lightweight model
+            detector_backend='opencv',  # Faster detection
             align=True,
-            enforce_detection=False
+            enforce_detection=False,
+            normalization='base',
+            distance_metric='cosine'
         )
     # delete_file_in_local(folder=LOCAL_PATH, path=path)
     # os.remove(user_face_path)  # Clean up the temporary file
