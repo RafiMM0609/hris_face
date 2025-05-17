@@ -69,7 +69,7 @@ async def face_temp(
             upload_file=file,
             user_id=user.id,
         )
-        if not data:
+        if not data['status']:
             raise ValueError('Face not verified')
         return common_response(CudResponse(message="Verified"))
     except Exception as e:

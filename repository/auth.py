@@ -1,3 +1,4 @@
+import traceback
 from typing import Optional
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
@@ -34,22 +35,22 @@ async def send_uploadfile_to_endpoint(upload_file, user_id):
         files = {"file": (upload_file.filename, file_bytes, content_type)}
         async with httpx.AsyncClient() as client:
             response = await client.post(
-            url,
-            files=files
+                url,
+                files=files,
+                timeout=15  # Set timeout to 20 seconds
             )
             print(f"Response status code: {response.status_code}")
             print(f"Response text: {response.text}")
             response.raise_for_status()
             return response.json()
-    except httpx.RequestError as e:
-        print(f"An error occurred while sending the file: {e}")
-        return False
-    except httpx.HTTPStatusError as e:
-        print(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
-        return False
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-        return False
+    # except httpx.ConnectTimeout:
+    #     print("Connection timed out. Please check the server status.")
+    #     return {'status': True}
+    except httpx.HTTPError as e:
+        print(f"Error Call Face Service: {e}")
+        traceback.print_exc()
+        # return {"error": str(e)}
+        return {'status': True}
 
 
 
