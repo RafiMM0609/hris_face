@@ -65,10 +65,11 @@ async def face_temp(
         # path = await upload_file(
         #     upload_file=file, path=f"/tmp/{str(file_name).replace(' ','_')}-{user.name}{now.replace(' ','_')}{file_extension}"
         # )
-        data = await authRepo.send_file_to_endpoint(
-            file_path=file,
+        data = await authRepo.send_uploadfile_to_endpoint(
+            upload_file=file,
             user_name=user.name,
-            user_face_id=user.face_id,        )
+            user_face_id=user.face_id,
+        )
         if not data:
             raise ValueError('Face not verified')
         return common_response(CudResponse(message="Verified"))
