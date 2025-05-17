@@ -67,8 +67,7 @@ async def face_temp(
         # )
         data = await authRepo.send_uploadfile_to_endpoint(
             upload_file=file,
-            user_name=user.name,
-            user_face_id=user.face_id,
+            user_id=user.id,
         )
         if not data:
             raise ValueError('Face not verified')

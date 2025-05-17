@@ -22,9 +22,9 @@ import cv2
 from deepface import DeepFace
 import httpx
 
-async def send_uploadfile_to_endpoint(upload_file, user_name, user_face_id):
+async def send_uploadfile_to_endpoint(upload_file, user_id):
     try:
-        url = f"http://85.31.233.176:8003/face/{user_name}/{user_face_id}"
+        url = f"http://85.31.233.176:8003/face/{user_id}"
         ext = os.path.splitext(upload_file.filename)[1].lower()
         if ext == ".png":
             content_type = "image/png"
