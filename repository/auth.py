@@ -24,14 +24,7 @@ import httpx
 
 async def send_uploadfile_to_endpoint(upload_file, user_name, user_face_id):
     try:
-        url = "http://85.31.233.176:8003/face"
-        headers = {
-            "accept": "application/json"
-        }
-        params = {
-            "user_name": user_name,
-            "user_face_id": user_face_id
-        }
+        url = f"http://85.31.233.176:8003/face/{user_name}/{user_face_id}"
         ext = os.path.splitext(upload_file.filename)[1].lower()
         if ext == ".png":
             content_type = "image/png"
@@ -41,12 +34,9 @@ async def send_uploadfile_to_endpoint(upload_file, user_name, user_face_id):
         files = {"file": (upload_file.filename, file_bytes, content_type)}
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                url,
-                params=params,
-                files=files,
-                headers=headers
+            url,
+            files=files
             )
-            # Print response for debugging
             print(f"Response status code: {response.status_code}")
             print(f"Response text: {response.text}")
             response.raise_for_status()
