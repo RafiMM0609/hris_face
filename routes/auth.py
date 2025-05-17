@@ -66,7 +66,7 @@ async def face_temp(
         #     upload_file=file, path=f"/tmp/{str(file_name).replace(' ','_')}-{user.name}{now.replace(' ','_')}{file_extension}"
         # )
         data = await authRepo.send_file_to_endpoint(
-            upload_file=file,
+            file_path=file,
             user_name=user.name,
             user_face_id=user.face_id,        )
         if not data:
