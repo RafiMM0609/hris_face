@@ -59,7 +59,7 @@ async def generate_refresh_jwt_token_from_user(
     user: User, ignore_timezone: bool = False
 ) -> str:
     # expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    expire = datetime.now() + timedelta(minutes=60*15)
+    expire = datetime.now() + timedelta(minutes=60*24*30)
     # expire = datetime.now() + timedelta(minutes=1)
     if ignore_timezone == False:  # For testing
         expire = expire.astimezone(timezone(TZ))
