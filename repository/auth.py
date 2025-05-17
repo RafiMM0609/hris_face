@@ -47,6 +47,7 @@ async def send_uploadfile_to_endpoint(upload_file, user_name, user_face_id):
                 headers=headers
             )
             response.raise_for_status()
+            print(f"Response status code: {response}")
             return response.json()
     except httpx.RequestError as e:
         print(f"An error occurred while sending the file: {e}")
