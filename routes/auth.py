@@ -40,6 +40,44 @@ from repository import auth as authRepo
 
 router = APIRouter(tags=["Auth"])
     
+
+@router.post(
+    "/face-temp",
+        responses={
+        "201": {"model": MeSuccessResponse},
+        "400": {"model": BadRequestResponse},
+        "401": {"model": UnauthorizedResponse},
+        "500": {"model": InternalServerErrorResponse},
+    },
+)
+async def face_temp(
+    file: UploadFile = File(),
+    db: Session = Depends(get_db),
+    token: str = Depends(oauth2_scheme),
+):
+    try:
+        user = get_user_from_jwt_token(db, token)
+        if not user:
+            return common_response(Unauthorized(message="Invalid/Expired token"))
+        # file_extension = os.path.splitext(file.filename)[1]
+        # file_name = os.path.splitext(file.filename)[0]
+        # now = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+        # path = await upload_file(
+        #     upload_file=file, path=f"/tmp/{str(file_name).replace(' ','_')}-{user.name}{now.replace(' ','_')}{file_extension}"
+        # )
+        data = await authRepo.send_file_to_endpoint(
+            upload_file=file,
+            user_name=user.name,
+            user_face_id=user.face_id,        )
+        if not data:
+            raise ValueError('Face not verified')
+        return common_response(CudResponse(message="Verified"))
+    except Exception as e:
+        import traceback
+        print("ERROR :",e)
+        traceback.print_exc()
+        return common_response(BadRequest(message=str(e)))
+
 @router.post(
     "/face",
         responses={

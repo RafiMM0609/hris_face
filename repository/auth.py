@@ -20,6 +20,48 @@ from io import BytesIO  # Change from StringIO to BytesIO
 import PIL.Image
 import cv2
 from deepface import DeepFace
+import httpx
+
+async def send_file_to_endpoint(file_path, user_name, user_face_id):
+    try:
+        url = "http://85.31.233.176:8003/face"
+        headers = {
+            "accept": "application/json"
+        }
+        params = {
+            "user_name": user_name,
+            "user_face_id": user_face_id
+        }
+        with open(file_path, "rb") as f:
+            # Determine the content type based on file extension
+            ext = os.path.splitext(file_path)[1].lower()
+            if ext == ".png":
+                content_type = "image/png"
+            else:
+                content_type = "image/jpeg"
+            files = {"file": (file_path, f, content_type)}
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    url,
+                    params=params,
+                    files=files,
+                    headers=headers
+                )
+                response.raise_for_status()
+                return response.json()
+    except httpx.RequestError as e:
+        print(f"An error occurred while sending the file: {e}")
+        return True
+    except httpx.HTTPStatusError as e:
+        print(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
+        return True
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return False
+
+
+
+
 
 backends = [
   'opencv', 
