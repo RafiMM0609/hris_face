@@ -37,7 +37,7 @@ async def send_uploadfile_to_endpoint(upload_file, user_name, user_face_id):
             content_type = "image/png"
         else:
             content_type = "image/jpeg"
-        file_bytes = await upload_file.read()  # read ONCE
+        file_bytes = await upload_file.read()
         files = {"file": (upload_file.filename, file_bytes, content_type)}
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -46,19 +46,20 @@ async def send_uploadfile_to_endpoint(upload_file, user_name, user_face_id):
                 files=files,
                 headers=headers
             )
-            response.raise_for_status()
+            # Print response for debugging
             print(f"Response status code: {response.status_code}")
+            print(f"Response text: {response.text}")
+            response.raise_for_status()
             return response.json()
     except httpx.RequestError as e:
         print(f"An error occurred while sending the file: {e}")
-        return True
+        return False
     except httpx.HTTPStatusError as e:
         print(f"HTTP error occurred: {e.response.status_code} - {e.response.text}")
-        return True
+        return False
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return False
-
 
 
 
