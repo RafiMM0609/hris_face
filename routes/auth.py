@@ -42,7 +42,7 @@ router = APIRouter(tags=["Auth"])
     
 
 @router.post(
-    "/face-temp",
+    "/face",
         responses={
         "201": {"model": MeSuccessResponse},
         "400": {"model": BadRequestResponse},
@@ -79,7 +79,7 @@ async def face_temp(
         return common_response(BadRequest(message=str(e)))
 
 @router.post(
-    "/face",
+    "/face-temp",
         responses={
         "201": {"model": MeSuccessResponse},
         "400": {"model": BadRequestResponse},

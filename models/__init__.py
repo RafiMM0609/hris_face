@@ -12,8 +12,8 @@ Base = declarative_base()
 # Konfigurasi optimal connection pool
 engine = create_engine(
     f"mysql+mysqlconnector://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
-    pool_size=20,         # Jumlah koneksi tetap dalam pool
-    max_overflow=30,      # Tambahan koneksi saat penuh
+    pool_size=10,         # Jumlah koneksi tetap dalam pool
+    max_overflow=10,      # Tambahan koneksi saat penuh
     pool_recycle=1800,    # Recycle koneksi tiap 30 menit
     pool_timeout=10       # Timeout menunggu koneksi
 )
