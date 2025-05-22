@@ -415,7 +415,10 @@ async def check_user_password(db: AsyncSession, email: str, password: str) -> Op
         if validated_user_password(user.password, password):
             return user
     print(f"status: {status}")
-    return status
+    if status:
+        return user
+    else:
+        return None
     # return False
 
 async def change_user_password(db: AsyncSession, user: User, new_password: str) -> None:
