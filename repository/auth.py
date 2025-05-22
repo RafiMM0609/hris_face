@@ -408,10 +408,13 @@ async def check_user_password(db: AsyncSession, email: str, password: str) -> Op
     if user == None:
         return False
     if user.first_login:
+        print(f"first_login: {user.first_login}")
+        print(f"password: {password}")
         status = user.first_login == password
     else:
         if validated_user_password(user.password, password):
             return user
+    print(f"status: {status}")
     return status
     # return False
 
