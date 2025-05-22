@@ -403,12 +403,17 @@ async def create_user_session_me(db: AsyncSession, user_id: str, token:str, old_
         print(f"Error creating user session: {e}")
 
 async def check_user_password(db: AsyncSession, email: str, password: str) -> Optional[User]:
+    status = False
     user = await get_user_by_email(db, email=email)
     if user == None:
         return False
-    if validated_user_password(user.password, password):
-        return user
-    return False
+    if user.first_login:
+        status = user.first_login == password
+    else:
+        if validated_user_password(user.password, password):
+            return user
+    return status
+    # return False
 
 async def change_user_password(db: AsyncSession, user: User, new_password: str) -> None:
     user.password = generate_hash_password(password=new_password)
