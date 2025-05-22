@@ -168,7 +168,7 @@ async def generate_token(
             return common_response(BadRequest(error="Invalid Credentials"))
         user = is_valid
         token = await generate_jwt_token_from_user(user=user)
-        await authRepo.create_user_session(db=db, user_id=user.id, token=token)
+        # await authRepo.create_user_session(db=db, user_id=user.id, token=token)
         return {"access_token": token, "token_type": "Bearer"}
     except Exception as e:
         return common_response(BadRequest(message=str(e)))
