@@ -5,7 +5,7 @@ FROM python:3.11.2-slim-buster
 WORKDIR /usr/src/app
 
 # install untuk pdfkit
-RUN apt-get update && apt-get install -y 
+# RUN apt-get update && apt-get install -y 
 COPY ./requirements.txt .
 COPY ./.env .
 RUN pip install -r requirements.txt
