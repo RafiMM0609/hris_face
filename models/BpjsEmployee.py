@@ -1,0 +1,36 @@
+from sqlalchemy import (
+    Column,
+    Numeric, 
+    String, 
+    Integer, 
+    DateTime, 
+    ForeignKey, 
+    Boolean, 
+    DECIMAL, 
+    Date,
+    Float
+)
+from sqlalchemy.orm import relationship
+from models import Base
+from models.Payroll import Payroll
+
+
+class BpjsEmployee(Base):
+    __tablename__ = "bpjs_employee"
+
+    id = Column(Integer, primary_key=True, nullable=False, index=True)
+    emp_id = Column(String(36), nullable=False, index=True)
+    name = Column(String, nullable=True)
+    amount = Column(Numeric(15, 5), nullable=True)
+    created_at = Column(DateTime(timezone=True))
+    updated_at = Column(DateTime(timezone=True))
+    created_by = Column(String(36), nullable=True)
+    updated_by = Column(String(36), nullable=True)
+    isact = Column(Boolean, default=True)
+    cutoff_date = Column(Date, nullable=True)
+    client_id = Column(Integer,ForeignKey("client.id"), nullable=False, index=True)
+
+    # Relation
+    client = relationship("Client", back_populates="employee_bpjs")
+    # user_payroll = relationship("Payroll", back_populates="user_to_bpjs")
+

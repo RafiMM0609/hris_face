@@ -1,21 +1,35 @@
 from fastapi import FastAPI, Request
+from datetime import datetime
 import logging
 import time
 # import uvicorn
+from pytz import timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from settings import (
-    ENVIRONTMENT
+    ENVIRONTMENT,
+    TZ,
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
+from core.mytask import run_scheduled_task_1
+from contextlib import asynccontextmanager
+from fastapi_utilities import repeat_at, repeat_every
 
 from routes.auth import router as AuthRouter
 from routes.file import router as FileRouter
 
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     yield
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # --- startup ---
+    # await scheduled_task()
+    scheduled_task_1()
+    # scheduled_task_2()
+    scheduled_task_3()
+    yield
+    # --- shutdown ---
+
+
 tittle="HRISKU"
 if ENVIRONTMENT == 'dev':
     app = FastAPI(
@@ -23,7 +37,7 @@ if ENVIRONTMENT == 'dev':
         docs_url="/docs",
         redoc_url=None,
         openapi_url="/openapi.json",
-        # lifespan=lifespan,
+        lifespan=lifespan,
         swagger_ui_oauth2_redirect_url="/docs/oauth2-redirect",
         swagger_ui_init_oauth={
             "clientId": "your-client-id",
@@ -37,7 +51,7 @@ elif ENVIRONTMENT == 'prod':
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
-        # lifespan=lifespan,
+        lifespan=lifespan,
         swagger_ui_oauth2_redirect_url="/docs/oauth2-redirect",
         swagger_ui_init_oauth={
             "clientId": "your-client-id",
@@ -45,6 +59,30 @@ elif ENVIRONTMENT == 'prod':
             "tokenUrl": "/auth/token",
         },
     )
+        
+@repeat_at(cron="48 * * * *")
+def scheduled_task_1():
+    print("Start!")
+    # Ambil waktu lokal sesuai TZ
+    local_tz = timezone(TZ)
+    now_local = datetime.now(local_tz)
+    print(f"Local time ({TZ}):", now_local)
+    # run_scheduled_task_1(func_name="generate_report")
+    if now_local.hour == 23:
+        print("Sudah pukul 23:58, memanggil fungsi generate_report untuk regenerate summary and report.")
+        run_scheduled_task_1(func_name="generate_report")
+    print("End")
+
+@repeat_at(cron="*/15 * * * *") # every 15 minutes
+def scheduled_task_3():
+    print("Start!")
+    # Ambil waktu lokal sesuai TZ
+    local_tz = timezone(TZ)
+    now_local = datetime.now(local_tz)
+    print(f"Local time ({TZ}):", now_local)
+    run_scheduled_task_1(func_name="generate_client_report_runner")
+    print("End")
+
 app.add_middleware(
     CORSMiddleware,
     # allow_origins=CORS_ALLOWED_ORIGINS,
