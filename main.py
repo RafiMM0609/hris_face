@@ -69,13 +69,13 @@ def scheduled_task_1():
     print(f"Local time ({TZ}):", now_local)
     # run_scheduled_task_1(func_name="generate_report")
     if now_local.hour == 22:
-        print("Sudah pukul 23:58, memanggil fungsi generate_report untuk regenerate summary and report.")
+        print("Sudah pukul 22:48, memanggil fungsi generate_report untuk regenerate summary and report.")
         run_scheduled_task_1(func_name="generate_report")
     print("End")
 
-@repeat_at(cron="*/30 * * * *") # every 15 minutes
+@repeat_at(cron="*/40 * * * *") # every 40 minutes
 def scheduled_task_3():
-    print("Start!")
+    print("Start check billing yang perlu di refresh!")
     # Ambil waktu lokal sesuai TZ
     local_tz = timezone(TZ)
     now_local = datetime.now(local_tz)
